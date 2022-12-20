@@ -5,6 +5,7 @@ const connectDB = require("./config/db");
 const path = require("path");
 const dotenv = require("dotenv");
 
+const User = require("./models/User");
 dotenv.config({ path: "./config/config.env" });
 
 const app = express();
@@ -14,12 +15,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.get("/", (req, res) => {
-    res.json(`askdlasdk`);
-
-});
+app.use('/api' , require('./routes/Product'));
 
 connectDB();
 
 const PORT = process.env.PORT;
-app.listen(3000, () => console.log(`Server Runing on Port : ${PORT}`));
+app.listen(PORT, () => console.log(`Server Runing on Port : ${PORT}`));
