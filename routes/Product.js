@@ -1,7 +1,6 @@
 const router = require('express').Router()
 const Product = require('../models/Product')
-// const upload = require("../utils/multer");
-// const cloudinary = require("../utils/cloudinary");
+
 
 
 // POST - create new product
@@ -15,7 +14,7 @@ router.post('/products' , async (req , res) => {
         product.title = req.body.title;
         product.description = req.body.description;
         product.stockQuantity = req.body.stockQuantity;
-        product.photo = req.body.photo;
+        product.photo =` result.secure_url`;
         product.price = req.body.price;
 
         await product.save();
@@ -26,7 +25,7 @@ router.post('/products' , async (req , res) => {
     } 
     catch (error) {
         res.status(500).json({
-            success : true ,
+            success : false ,
             msg : error.message
         })
     }
