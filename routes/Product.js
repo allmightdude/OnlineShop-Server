@@ -4,7 +4,7 @@ const Product = require('../models/Product')
 
 
 // POST - create new product
-router.post('/products' , async (req , res) => {
+router.post('/products', async (req , res) => {
 
     try {
         let product = new Product();
@@ -14,7 +14,7 @@ router.post('/products' , async (req , res) => {
         product.title = req.body.title;
         product.description = req.body.description;
         product.stockQuantity = req.body.stockQuantity;
-        product.photo =` result.secure_url`;
+        product.photo = `result.secure_url`;
         product.price = req.body.price;
 
         await product.save();
