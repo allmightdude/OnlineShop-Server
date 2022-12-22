@@ -50,8 +50,24 @@ router.get('/products' , async (req , res)=>{
 })
 
 
-
 // POST - get signle product
+router.get('/products/:id' , async(req , res)=>{
+    try {
+        let product = await Product.findById({
+            _id : req.params.id
+        })
+
+        res.json({
+            success : true,
+            product : product
+        })
+    } catch (error) {
+        res.status(500).json({
+            success : true ,
+            msg : error.message
+        })
+    }
+})
 
 // PUT - update single product
 
