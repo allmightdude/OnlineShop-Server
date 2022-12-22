@@ -33,6 +33,23 @@ router.post('/products', async (req , res) => {
 })
 
 // Get  - get all products
+router.get('/products' , async (req , res)=>{
+    try {
+        let products = await Product.find()
+        .exec();
+        res.json({
+            success : true,
+            products : products
+        })
+    } catch (error) {
+        res.status(500).json({
+            success : false,
+            msg : error.message
+        })
+    }
+})
+
+
 
 // POST - get signle product
 
