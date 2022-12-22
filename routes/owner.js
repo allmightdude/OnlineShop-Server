@@ -38,4 +38,23 @@ router.get("/owner", async (req, res) => {
   }
 });
 
+// get a single owner
+router.get('/owner/:id' , async(req , res)=>{
+    try {
+        let owner = await Owner.findById({
+            _id : req.params.id
+        })
+        res.json({
+            success : true,
+            owner : owner
+        })
+    } catch (error) {
+        res.status(500).json({
+            success : true ,
+            msg : error.message
+        })
+    }
+})
+
+
 module.exports = router;
