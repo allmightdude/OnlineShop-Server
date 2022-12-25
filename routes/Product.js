@@ -1,18 +1,22 @@
 const router = require("express").Router();
 const Product = require("../models/Product");
+const upload = require("../middlewares/multer");
+const cloudinary = require("../utils/cloudinary");
 
 // POST - create new product
-router.post("/products", async (req, res) => {
+router.post("/products", upload.single('photo') , async (req, res) => {
   try {
     let product = new Product();
-
-    // product.categoryID = req.body.categoryID;
-    // product.ownerID = req.body.ownerID;
+    const result = await cloudinary.uploader.upload(req.file.path);
+    product.categoryID = req.body.categoryID;
+    product.ownerID = req.body.ownerID;
     product.title = req.body.title;
     product.description = req.body.description;
     product.stockQuantity = req.body.stockQuantity;
-    product.photo = `result.secure_url`;
     product.price = req.body.price;
+    product.photo = result.secure_url;
+
+
 
     await product.save();
     res.json({
