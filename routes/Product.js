@@ -4,10 +4,11 @@ const upload = require("../middlewares/multer");
 const cloudinary = require("../utils/cloudinary");
 
 // POST - create new product
-router.post("/products", upload.single('photo') , async (req, res) => {
+router.post("/products", upload.single("photo"), async (req, res) => {
   try {
-    let product = new Product();
     const result = await cloudinary.uploader.upload(req.file.path);
+
+    let product = new Product();
     product.categoryID = req.body.categoryID;
     product.ownerID = req.body.ownerID;
     product.title = req.body.title;
@@ -15,8 +16,6 @@ router.post("/products", upload.single('photo') , async (req, res) => {
     product.stockQuantity = req.body.stockQuantity;
     product.price = req.body.price;
     product.photo = result.secure_url;
-
-
 
     await product.save();
     res.json({
@@ -67,55 +66,64 @@ router.get("/products/:id", async (req, res) => {
 });
 
 // PUT - update single product
-router.put("/products/:id", async (req, res) => {
+router.put('/products/:id' , upload.single('photo') , async(req , res)=>{
   try {
-    console.log(req.body);
-    let updatedProduct = await Product.findOneAndUpdate(
-      { _id: req.params.id },
-      {
-        $set: {
-        //   categoryID: req.body.categoryID,
-          ownerID: req.body.ownerID,
-          title: req.body.title,
-          price: req.body.price,
-          stockQuantity: req.body.stockQuantity,
-          description: req.body.description,
-          photo: "new Pic Url",
-        },
-      },
-      { upsert: true }
-    );
 
-    res.json({
-      success: true,
-      updatedProduct: updatedProduct,
-    });
+      let preUpdate = await Product.findById({
+          _id : req.params.id
+      })
+      let newPhoto = preUpdate.photo;
+      if(req.file){
+          const result = await cloudinary.uploader.upload(req.file.path);
+          if(result){
+              res.json({
+                  result
+              })
+          }
+          newPhoto = result.secure_url;
+      }
+
+      let Updatedproduct = await Product.findOneAndUpdate({_id : req.params.id} , {
+          $set : {
+              categoryID : req.body.categoryID,
+              ownerID : req.body.ownerID,
+              title : req.body.title,
+              price : req.body.price,
+              stockQuantity : req.body.stockQuantity,
+              description : req.body.description,
+              photo : newPhoto
+          }
+      } , {upsert : true});
+
+      res.json({
+          success : true,
+          Updatedproduct : Updatedproduct
+      })
   } catch (error) {
-    res.status(500).json({
-      success: true,
-      msg: error.message,
+      res.status(500).json({
+          success : true ,
+          msg : error.message
+      })
+  }
+})
+
+// DELETE - delete a single request
+router.delete("/products/:id", async (req, res) => {
+  try {
+    let deletedProduct = await Product.findOneAndDelete({
+      _id: req.params.id,
+    });
+    if (deletedProduct) {
+      res.json({
+        success: true,
+        msg: "successfully deleted product!",
+      });
+    }
+  } catch (error) {
+    res.json({
+      status: false,
+      message: error.message,
     });
   }
 });
-
-// DELETE - delete a single request
-router.delete('/products/:id' , async (req , res) => {
-    try {
-        let deletedProduct = await Product.findOneAndDelete({
-            _id : req.params.id
-        })
-        if(deletedProduct){
-            res.json({
-                success : true , 
-                msg : 'successfully deleted product!'
-            }) 
-        }
-
-    } catch (error) {
-        res.json({
-            status : false , 
-            message :error.message
-        })  
-    }
-})
 module.exports = router;
