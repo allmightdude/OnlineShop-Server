@@ -33,7 +33,7 @@ router.post("/products", upload.single("photo"), async (req, res) => {
 // Get  - get all products
 router.get("/products", async (req, res) => {
   try {
-    let products = await Product.find().exec();
+    let products = await Product.find().populate('ownerID categoryID').exec();
     res.json({
       success: true,
       products: products,
@@ -51,7 +51,7 @@ router.get("/products/:id", async (req, res) => {
   try {
     let product = await Product.findById({
       _id: req.params.id,
-    });
+    }).populate('ownerID categoryID').exec();
 
     res.json({
       success: true,
@@ -66,46 +66,49 @@ router.get("/products/:id", async (req, res) => {
 });
 
 // PUT - update single product
-router.put('/products/:id' , upload.single('photo') , async(req , res)=>{
+router.put("/products/:id", upload.single("photo"), async (req, res) => {
   try {
-
-      let preUpdate = await Product.findById({
-          _id : req.params.id
-      })
-      let newPhoto = preUpdate.photo;
-      if(req.file){
-          const result = await cloudinary.uploader.upload(req.file.path);
-          if(result){
-              res.json({
-                  result
-              })
-          }
-          newPhoto = result.secure_url;
+    let preUpdate = await Product.findById({
+      _id: req.params.id,
+    });
+    let newPhoto = preUpdate.photo;
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path);
+      if (result) {
+        res.json({
+          result,
+        });
       }
+      newPhoto = result.secure_url;
+    }
 
-      let Updatedproduct = await Product.findOneAndUpdate({_id : req.params.id} , {
-          $set : {
-              categoryID : req.body.categoryID,
-              ownerID : req.body.ownerID,
-              title : req.body.title,
-              price : req.body.price,
-              stockQuantity : req.body.stockQuantity,
-              description : req.body.description,
-              photo : newPhoto
-          }
-      } , {upsert : true});
+    let Updatedproduct = await Product.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $set: {
+          categoryID: req.body.categoryID,
+          ownerID: req.body.ownerID,
+          title: req.body.title,
+          price: req.body.price,
+          stockQuantity: req.body.stockQuantity,
+          description: req.body.description,
+          photo: newPhoto,
+        },
+      },
+      { upsert: true }
+    );
 
-      res.json({
-          success : true,
-          Updatedproduct : Updatedproduct
-      })
+    res.json({
+      success: true,
+      Updatedproduct: Updatedproduct,
+    });
   } catch (error) {
-      res.status(500).json({
-          success : true ,
-          msg : error.message
-      })
+    res.status(500).json({
+      success: true,
+      msg: error.message,
+    });
   }
-})
+});
 
 // DELETE - delete a single request
 router.delete("/products/:id", async (req, res) => {
