@@ -16,6 +16,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/api' , require('./routes/product'));
 app.use('/api' , require('./routes/category'));
 app.use('/api' , require('./routes/owner'));
+app.use('/api' , require('./routes/auth'))
 
 connectDB();
 
