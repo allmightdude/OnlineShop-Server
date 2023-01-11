@@ -20,7 +20,6 @@ const UserSchema = new mongoose.Schema({
 
 UserSchema.pre("save", function (next) {
   let user = this;
-
   if (this.isModified("password") || this.isNew) {
     bcrypt.genSalt(10 , function (err, salt) {
       if (err) {
@@ -36,9 +35,14 @@ UserSchema.pre("save", function (next) {
         next();
       })
     });
-  }else{
+  } else{
     return next(err);
   }
 });
+
+UserSchema.methods.comparePassword = function(password, next){
+  let user = this;
+  return bcrypt.compareSync(password , user.password);
+}
 
 module.exports = mongoose.model("User", UserSchema);

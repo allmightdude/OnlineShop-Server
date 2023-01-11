@@ -14,7 +14,7 @@ const ProductSchema = mongoose.Schema({
     photo : String,
     price : Number,
     stockQuantity : Number,
-    reviews : [{    
+    rating : [{    
         type : mongoose.Schema.Types.ObjectId,
         ref : "Review"
     }]
