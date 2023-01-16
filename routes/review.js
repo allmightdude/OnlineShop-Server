@@ -6,23 +6,26 @@ const upload = require("../middlewares/multer");
 const cloudinary = require("../utils/cloudinary");
 
 router.post(
-  "/review/:productID",
+  "/reviews/:productID",
   [verifyToken, upload.single("photo")],
   async (req, res) => {
     try {
       const result = await cloudinary.uploader.upload(req.file.path);
-
       const review = new Review();
       review.headline = req.body.headline;
       review.body = req.body.body;
-      review.rating = req.body.ratingline;
+      review.rating = req.body.rating;
       review.user = req.decoded._id;
-      review.productID = req.body.productID;
+      review.productID = req.params.productID;
       review.photo = result.secure_url;
+      console.log(req.params.productID);
 
-      await Product.updateOne({ $push: review._id });
+      await Product.updateOne(
+        { _id: req.params.productID },
+        { $push: { reviews: review._id } }
+      );
 
-      let saveReview = await Review.save();
+      let saveReview = await review.save();
 
       if (saveReview) {
         res.json({
@@ -42,13 +45,15 @@ router.post(
 router.get("/reviews/:productID", async (req, res) => {
   try {
     const ProductReviews = await Review.find({
-        productID : req.params.productID
-    }).populate("user").exec();
+      productID: req.params.productID,
+    })
+      .populate("user")
+      .exec();
 
     res.json({
-        success : true,
-        reviews : ProductReviews
-    })
+      success: true,
+      reviews: ProductReviews,
+    });
   } catch (error) {
     res.json({
       status: false,
