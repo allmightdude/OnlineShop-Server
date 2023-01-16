@@ -20,9 +20,9 @@ router.post("/addresses", verifytoken, async (req, res) => {
     await address.save();
 
     res.json({
-        success: true,
-        message : "Successfully added address!"
-    })
+      success: true,
+      message: "Successfully added address!",
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -31,4 +31,21 @@ router.post("/addresses", verifytoken, async (req, res) => {
   }
 });
 
+router.get("/addresses", verifytoken, async (req, res) => {
+  try {
+    let addresses = await Address.find({
+      user: req.decoded._id,
+    });
+
+    res.json({
+        success : true,
+        addresses : addresses
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      msg: error.message,
+    });
+  }
+});
 module.exports = router;
