@@ -18,6 +18,7 @@ app.use('/api' , require('./routes/category'));
 app.use('/api' , require('./routes/owner'));
 app.use('/api' , require('./routes/auth'));
 app.use('/api' , require('./routes/review'));
+app.use('/api' , require('./routes/address'));
 
 connectDB();
 
