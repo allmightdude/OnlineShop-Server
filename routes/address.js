@@ -3,7 +3,7 @@ const Category = require("../models/Category");
 const verifytoken = require("../middlewares/verify-token");
 const Address = require("../models/Address");
 
-router.posy("/addresses", verifytoken, async (req, res) => {
+router.post("/addresses", verifytoken, async (req, res) => {
   try {
     let address = new Address();
     address.user = req.decoded._id;
