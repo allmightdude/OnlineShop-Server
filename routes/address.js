@@ -3,21 +3,22 @@ const Category = require("../models/Category");
 const verifytoken = require("../middlewares/verify-token");
 const Address = require("../models/Address");
 const axios = require("axios");
-const countryList = require('country-list');
+const countryList = require("country-list");
+const User = require("../models/User");
 
 router.post("/addresses", verifytoken, async (req, res) => {
   try {
     let address = new Address();
     address.user = req.decoded._id;
-    address.country = country;
-    address.fullName = fullName;
-    address.streetAddress = streetAddress;
-    address.city = city;
-    address.state = state;
-    address.zipCode = zipCode;
-    address.phoneNumber = phoneNumber;
-    address.deliverInstructions = deliverInstructions;
-    address.securityCode = securityCode;
+    address.country = req.body.country;
+    address.fullName = req.body.fullName;
+    address.streetAddress = req.body.streetAddress;
+    address.city = req.body.city;
+    address.state = req.body.state;
+    address.zipCode = req.body.zipCode;
+    address.phoneNumber = req.body.phoneNumber;
+    address.deliverInstructions = req.body.deliverInstructions;
+    address.securityCode = req.body.securityCode;
 
     await address.save();
 
@@ -51,13 +52,34 @@ router.get("/addresses", verifytoken, async (req, res) => {
   }
 });
 
-router.get("/countries", async (req, res) => {
+//Update Address
+router.put("/addresses/:id", verifytoken, async (req, res) => {
   try {
-    // let response = await axios.get('https://restcountries.eu/rest/v2/all');
-    let countries = countryList.getData();
+    let foundAddress = await Address.findOne({
+      _id: req.params.id,
+    });
+
+    if (foundAddress) {
+      if (req.body.country) foundAddress.country = req.body.country;
+      if (req.body.fullName) foundAddress.fullName = req.body.fullName;
+      if (req.body.streetAddress)
+        foundAddress.streetAddress = req.body.streetAddress;
+      if (req.body.city) foundAddress.city = req.body.city;
+      if (req.body.state) foundAddress.state = req.body.state;
+      if (req.body.zipCode) foundAddress.zipCode = req.body.zipCode;
+      if (req.body.phoneNumber) foundAddress.phoneNumber = req.body.phoneNumber;
+      if (req.body.deliverInstructions)
+        foundAddress.deliverInstructions = req.body.deliverInstructions;
+      if (req.body.securityCode)
+        foundAddress.securityCode = req.body.securityCode;
+    }
+
+    await foundAddress.save();
+
     res.json({
-      countries
-    })
+      success: true,
+      message: "Successfully updated the address.",
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -65,4 +87,70 @@ router.get("/countries", async (req, res) => {
     });
   }
 });
+
+// Delete Address
+router.put("/addresses/:id", verifytoken, async (req, res) => {
+  try {
+    let deletedAddress = await Address.findOneAndDelete({
+      user: req.decoded._id,
+      _id: req.params.id,
+    });
+
+    if (deletedAddress) {
+      res.json({
+        success: true,
+        message: "Successfully Deleted the address.",
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      msg: error.message,
+    });
+  }
+});
+
+// Set a Address as default
+router.put("/addresses/set/default", verifytoken , async (req, res) => {
+  try {
+    let doc = await User.findOneAndUpdate(
+      { _id: req.decoded._id },
+      {
+        $set: {
+          address: req.body.id,
+        },
+      }
+    );
+
+    if (doc) {
+      res.json({
+        success: true,
+        message: "Successfully Set this address as default.",
+      });
+    }
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      msg: error.message,
+    });
+  }
+});
+
+// Get all countries
+router.get("/countries", async (req, res) => {
+  try {
+    // let response = await axios.get('https://restcountries.eu/rest/v2/all');
+    let countries = countryList.getData();
+    res.json({
+      countries,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      msg: error.message,
+    });
+  }
+});
+
 module.exports = router;
