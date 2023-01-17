@@ -2,6 +2,8 @@ const router = require("express").Router();
 const Category = require("../models/Category");
 const verifytoken = require("../middlewares/verify-token");
 const Address = require("../models/Address");
+const axios = require("axios");
+const countryList = require('country-list');
 
 router.post("/addresses", verifytoken, async (req, res) => {
   try {
@@ -38,8 +40,23 @@ router.get("/addresses", verifytoken, async (req, res) => {
     });
 
     res.json({
-        success : true,
-        addresses : addresses
+      success: true,
+      addresses: addresses,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      msg: error.message,
+    });
+  }
+});
+
+router.get("/countries", async (req, res) => {
+  try {
+    // let response = await axios.get('https://restcountries.eu/rest/v2/all');
+    let countries = countryList.getData();
+    res.json({
+      countries
     })
   } catch (error) {
     res.status(500).json({
