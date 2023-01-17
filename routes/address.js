@@ -89,12 +89,21 @@ router.put("/addresses/:id", verifytoken, async (req, res) => {
 });
 
 // Delete Address
-router.put("/addresses/:id", verifytoken, async (req, res) => {
+router.delete("/addresses/:id", verifytoken, async (req, res) => {
   try {
     let deletedAddress = await Address.findOneAndDelete({
       user: req.decoded._id,
       _id: req.params.id,
     });
+
+    let user = await User.updateOne(
+      { _id: req.decoded._id },
+      { $unset: { address: 1 } }
+    );
+
+    if (user) {
+      delete user.address;
+    }
 
     if (deletedAddress) {
       res.json({
@@ -111,7 +120,7 @@ router.put("/addresses/:id", verifytoken, async (req, res) => {
 });
 
 // Set a Address as default
-router.put("/addresses/set/default", verifytoken , async (req, res) => {
+router.put("/addresses/set/default", verifytoken, async (req, res) => {
   try {
     let doc = await User.findOneAndUpdate(
       { _id: req.decoded._id },
@@ -128,7 +137,6 @@ router.put("/addresses/set/default", verifytoken , async (req, res) => {
         message: "Successfully Set this address as default.",
       });
     }
-
   } catch (error) {
     res.status(500).json({
       success: false,
