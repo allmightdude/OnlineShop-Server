@@ -52,6 +52,24 @@ router.get("/addresses", verifytoken, async (req, res) => {
   }
 });
 
+// Get Single Address
+router.get("/addresses/:id", verifytoken, async (req, res) => {
+  try {
+    let address = await Address.findById({
+      _id: req.params.id,
+    });
+
+    res.json({
+      address,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      msg: error.message,
+    });
+  }
+});
+
 //Update Address
 router.put("/addresses/:id", verifytoken, async (req, res) => {
   try {
@@ -148,7 +166,6 @@ router.put("/addresses/set/default", verifytoken, async (req, res) => {
 // Get all countries
 router.get("/countries", async (req, res) => {
   try {
-    // let response = await axios.get('https://restcountries.eu/rest/v2/all');
     let countries = countryList.getData();
     res.json({
       countries,
