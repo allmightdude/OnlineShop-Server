@@ -1,5 +1,8 @@
 const router = require("express").Router();
 const moment = require("moment");
+const Stripe = require("stripe");
+const Order = require("../models/Order");
+const verifyToken = require("../middlewares/verify-token");
 
 const SHIPMENT = {
   normal: {
@@ -39,5 +42,38 @@ router.post("/shipment", (req, res) => {
     });
   }
 });
+
+router.post('/payment' , verifyToken , (req , res) => {
+  let totalPrice = Math.round(req.body.totalPrice * 100);
+
+  Stripe.customers
+    .create({
+      email : req.decoded.email 
+    })
+    .then(customer => {
+      return Stripe.customers.createSource(customer.id , {
+        source : "tok_visa"
+      })
+    })
+    .then(source => {
+      return Stripe.charges.create({
+        amount : totalPrice ,
+        currency : "usd",
+        customer : source.customer
+      })
+    })
+    .then(async charge => {
+      let order = new Order();
+      let cart = req.body.cart;
+
+      cart.map(product => {
+        order.products.push({
+          productID : product._id,
+          quantity : parseInt(product.quantity),
+          price : product.price
+        })
+      })
+    })
+})
 
 module.exports = router;
