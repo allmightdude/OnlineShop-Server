@@ -20,6 +20,7 @@ app.use('/api' , require('./routes/auth'));
 app.use('/api' , require('./routes/review'));
 app.use('/api' , require('./routes/address'));
 app.use('/api' , require('./routes/payment'));
+app.use('/api' , require('./routes/order'));
 
 connectDB();
 
