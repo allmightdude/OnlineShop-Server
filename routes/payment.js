@@ -62,7 +62,7 @@ router.post("/payment", verifyToken, (req, res) => {
         customer: source.customer,
       });
     })
-    .then(async (charge) => {
+    .then(async charge => {
       let order = new Order();
       let cart = req.body.cart;
 
@@ -82,13 +82,13 @@ router.post("/payment", verifyToken, (req, res) => {
         success : true,
         msg : "Succussfully create order!"
       })
+    })
+    .catch((err) => {
+      res.status(500).json({
+        success: true,
+        msg: err.message,
+      });
     });
-  //   .catch((err) => {
-  //     res.status(500).json({
-  //       success: true,
-  //       msg: err.message,
-  //     });
-  //   });
 });
 
 module.exports = router;

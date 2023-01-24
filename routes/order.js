@@ -5,7 +5,7 @@ const verifyToken = require("../middlewares/verify-token");
 router.get("/orders", verifyToken, async (req, res) => {
   try {
     let products = await Order.find({owner : req.decoded._id})
-            .populate("owner products.productID.ownerID");
+            .populate("owner products.productID");
     res.json({
         success : true ,
         products : products

@@ -21,6 +21,7 @@ app.use('/api' , require('./routes/review'));
 app.use('/api' , require('./routes/address'));
 app.use('/api' , require('./routes/payment'));
 app.use('/api' , require('./routes/order'));
+app.use('/api' , require('./routes/search'));
 
 connectDB();
 
